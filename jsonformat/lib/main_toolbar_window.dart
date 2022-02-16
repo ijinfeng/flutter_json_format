@@ -1,5 +1,8 @@
+
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:desktop_drop/desktop_drop.dart';
 
 enum FormatLanguage { dart, objectiveC, swift }
 
@@ -364,6 +367,23 @@ class _FileDargViewState extends State<_FileDargView> {
       height: size,
     );
 
+    fileDectorIcon = DropTarget(
+      child: fileDectorIcon,
+      onDragDone: (detail) {
+print(detail);
+      },
+      onDragEntered: (detail) {
+        setState(() {
+          widget.mouseHover = true;
+        });
+      },
+      onDragExited: (detail) {
+        setState(() {
+          widget.mouseHover = false;
+        });
+      },
+      );
+
     if (widget.mouseHover) {
       fileDectorIcon = Stack(
         children: [
@@ -381,25 +401,6 @@ class _FileDargViewState extends State<_FileDargView> {
         ],
       );
     }
-
-  fileDectorIcon = InkResponse(
-      child: fileDectorIcon,
-      splashColor: Colors.white,
-      hoverColor: Colors.white,
-      onHover: (hover) {
-        setState(() {
-          widget.mouseHover = hover;
-        });
-      },
-      onTap: () {},
-    );
-
-  fileDectorIcon = Listener(
-    child: fileDectorIcon,
-    onPointerHover: (event) {
-      print(event);
-    },
-  );
 
     current = Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
