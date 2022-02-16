@@ -368,7 +368,7 @@ class _FileDargViewState extends State<_FileDargView> {
       fileDectorIcon = Stack(
         children: [
           fileDectorIcon,
-          Positioned(
+          const Positioned(
             child: Text(
               '放入文件',
               style: TextStyle(color: Colors.red),
@@ -393,6 +393,13 @@ class _FileDargViewState extends State<_FileDargView> {
       },
       onTap: () {},
     );
+
+  fileDectorIcon = Listener(
+    child: fileDectorIcon,
+    onPointerHover: (event) {
+      print(event);
+    },
+  );
 
     current = Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
