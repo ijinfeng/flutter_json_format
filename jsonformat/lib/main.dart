@@ -1,8 +1,12 @@
 import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
 import 'package:bitsdojo_window/bitsdojo_window.dart';
+
+import 'package:jsonformat/json_input_window.dart';
+import 'package:jsonformat/main_toolbar_window.dart';
+import 'package:jsonformat/json_format_output_window.dart';
+import 'package:jsonformat/output_toolbar_view.dart';
 
 void main() {
   runApp(const MyApp());
@@ -35,11 +39,16 @@ class MyApp extends StatelessWidget {
           child: Column(
           children: [
             _WindowTopBox(),
-            Row(
-              children: [_TopLeftJsonInputSide(), _TopRightToolBarSide()],
+            Padding(
+              child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [TopLeftJsonInputSide(), TopRightToolBarSide()],
+            ),
+            padding: const EdgeInsets.only(top: 16),
             ),
             Divider(color: _mainColor,),
-            _BottomOutputSide()
+            BottomOutputSide(),
+            BottomOutputLogToolBarView()
           ],
         ), 
           color: Colors.blueGrey
@@ -83,47 +92,3 @@ return Row(
   }
 }
 
-class _TopLeftJsonInputSide extends StatelessWidget {
-@override
-  Widget build(BuildContext context) {
-
-// json 输入框
-    Widget current = const TextField(
-        keyboardType: TextInputType.multiline,
-        maxLines: 15,
-        decoration: InputDecoration(border: OutlineInputBorder(), contentPadding: EdgeInsets.all(10)),
-      );
-
-    current = Container(
-      padding: const EdgeInsets.all(16),
-      child: current,
-    );
-
-  current = Expanded(child: current);
-
-    return current;
-  }
-}
-
-class _TopRightToolBarSide extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    Widget current;
-    current = SizedBox(
-      width: 160,
-      child: Container(
-        child: Image.asset('assets/pull_input_file.png'),
-      ),
-    );
-    return current;
-  }
-}
-
-class _BottomOutputSide extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container();
-    
-  }
-  
-}
