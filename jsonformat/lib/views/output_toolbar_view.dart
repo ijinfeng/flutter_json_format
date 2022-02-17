@@ -1,6 +1,8 @@
 
 import 'package:flutter/material.dart';
 
+import 'main_style_button.dart';
+
 class BottomOutputLogToolBarView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -21,8 +23,8 @@ TextStyle textStyle = const TextStyle(
       color: Colors.white,
       fontSize: 14,
     );
-  Widget copyButton = ElevatedButton(onPressed: () {}, child: Text('复制', style: textStyle,));
-  Widget exportButton = ElevatedButton(onPressed: () {}, child: Text('导出', style: textStyle,));
+  Widget copyButton = MainStyleButton(onPressed: () {}, child: Text('复制', style: textStyle,));
+  Widget exportButton = MainStyleButton(onPressed: () {}, child: Text('导出', style: textStyle,));
 
   List<Widget> buttons = [
 copyButton,

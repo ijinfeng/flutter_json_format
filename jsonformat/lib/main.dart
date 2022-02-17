@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 
-import 'package:jsonformat/json_input_window.dart';
-import 'package:jsonformat/main_toolbar_window.dart';
-import 'package:jsonformat/json_format_output_window.dart';
-import 'package:jsonformat/output_toolbar_view.dart';
+import 'package:jsonformat/views/json_input_window.dart';
+import 'package:jsonformat/views/main_toolbar_window.dart';
+import 'package:jsonformat/views/json_format_output_window.dart';
+import 'package:jsonformat/views/output_toolbar_view.dart';
 
 void main() {
   runApp(const MyApp());

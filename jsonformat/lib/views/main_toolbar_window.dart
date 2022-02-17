@@ -2,7 +2,9 @@
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:desktop_drop/desktop_drop.dart';
+
+import 'package:jsonformat/views/filedrag_view.dart';
+import 'main_style_button.dart';
 
 enum FormatLanguage { dart, objectiveC, swift }
 
@@ -34,7 +36,7 @@ class TopRightToolBarSide extends StatelessWidget {
     Widget current;
 
 // 文件选择区域
-    current = _FileDargView();
+    current = FileDargView();
 
 // 分割线
     Widget seperateLine = const Divider(
@@ -51,7 +53,7 @@ class TopRightToolBarSide extends StatelessWidget {
       height: 10,
     );
 
-    Widget dectorJSONButton = ElevatedButton(
+    Widget dectorJSONButton = MainStyleButton(
         onPressed: () {},
         child: Text(
           'JSON探测',
@@ -59,7 +61,7 @@ class TopRightToolBarSide extends StatelessWidget {
         ));
 
 // 格式化
-    Widget formatButton = ElevatedButton(
+    Widget formatButton = MainStyleButton(
         onPressed: () {},
         child: Text(
           '格式化',
@@ -78,7 +80,7 @@ class TopRightToolBarSide extends StatelessWidget {
 
     // 转模型
     _DropDownMenu menu = _DropDownMenu(la);
-    Widget convertButton = ElevatedButton(
+    Widget convertButton = MainStyleButton(
         onPressed: () {
           la = menu.la;
           print("当前选择的语言类型为：${languageEnumToString(la)}");
@@ -122,11 +124,11 @@ class TopRightToolBarSide extends StatelessWidget {
       children: [
         current,
         const SizedBox(
-          height: 20,
+          height: 10,
         ),
         seperateLine,
         const SizedBox(
-          height: 20,
+          height: 10,
         ),
         buttons
       ],
@@ -212,7 +214,7 @@ class _JSONFormatFixState extends State<_JSONFormatFixView> {
         const Text('自动修正'),
         space,
         const Icon(
-          Icons.error_outline,
+          Icons.help,
           size: 18,
         ),
       ],
@@ -299,114 +301,4 @@ class _DropDownMenuState extends State<_DropDownMenu> {
   }
 }
 
-// 文件拖拽
-class _FileDargView extends StatefulWidget {
-  bool mouseHover = false;
 
-  @override
-  State<StatefulWidget> createState() {
-    return _FileDargViewState();
-  }
-}
-
-class _FileDargViewState extends State<_FileDargView> {
-  @override
-  Widget build(BuildContext context) {
-    Widget current;
-
-    TextStyle textStyle = const TextStyle(
-      color: Colors.white,
-      fontSize: 12,
-    );
-
-    Widget space = const SizedBox(
-      height: 7,
-    );
-
-    // 选择文件按钮
-    Widget selectFileButton = ElevatedButton(
-        onPressed: () {},
-        child: Text(
-          '选择文件',
-          style: textStyle,
-        ));
-
-// 重新读取文件内容
-    Widget resetButton = ElevatedButton(
-        onPressed: () {},
-        child: Text(
-          '重新读取',
-          style: textStyle,
-        ));
-
-    // 删除
-    Widget deleteButton = ElevatedButton(
-        onPressed: () {},
-        child: Text(
-          '删除文件',
-          style: textStyle,
-        ));
-
-    List<Widget> buttons = [
-      selectFileButton,
-      space,
-      resetButton,
-      space,
-      deleteButton
-    ];
-
-    current = Column(
-      children: buttons,
-    );
-
-    double size = 100;
-
-    Widget fileDectorIcon = Image.asset(
-      'assets/pull_input_file.png',
-      width: size,
-      height: size,
-    );
-
-    fileDectorIcon = DropTarget(
-      child: fileDectorIcon,
-      onDragDone: (detail) {
-print(detail);
-      },
-      onDragEntered: (detail) {
-        setState(() {
-          widget.mouseHover = true;
-        });
-      },
-      onDragExited: (detail) {
-        setState(() {
-          widget.mouseHover = false;
-        });
-      },
-      );
-
-    if (widget.mouseHover) {
-      fileDectorIcon = Stack(
-        children: [
-          fileDectorIcon,
-          const Positioned(
-            child: Text(
-              '放入文件',
-              style: TextStyle(color: Colors.red),
-              textAlign: TextAlign.center,
-            ),
-            left: 0,
-            bottom: 0,
-            right: 0,
-          )
-        ],
-      );
-    }
-
-    current = Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: [fileDectorIcon, current],
-    );
-
-    return current;
-  }
-}
