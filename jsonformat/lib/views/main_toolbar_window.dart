@@ -25,7 +25,7 @@ String languageEnumToString(FormatLanguage la) {
 }
 
 /// 右侧工具菜单栏
-class TopRightToolBarSide extends StatelessWidget {
+class MainToolBarSide extends StatelessWidget {
   FormatLanguage la = FormatLanguage.dart;
 
   /// 自动修复指json格式不正确时，sdk将根据json格式自动为其补偿确实的内容，如“”，{}等
@@ -35,13 +35,16 @@ class TopRightToolBarSide extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget current;
 
+    double height = 140;
+
 // 文件选择区域
     current = FileDargView();
 
 // 分割线
-    Widget seperateLine = const Divider(
-      endIndent: 10,
-      indent: 10,
+    Widget seperateLine = Container(
+      color: Colors.black26,
+  width: 1,
+  height: height - 10,
     );
 
     TextStyle textStyle = const TextStyle(
@@ -118,24 +121,27 @@ class TopRightToolBarSide extends StatelessWidget {
       child: buttons,
     );
 
-    current = Column(
-      mainAxisAlignment: MainAxisAlignment.start,
+    current = Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        current,
+        // 左侧的按钮
+        buttons,
         const SizedBox(
-          height: 10,
+          width: 20,
         ),
+        // 中间的分割线
         seperateLine,
         const SizedBox(
-          height: 10,
+          width: 10,
         ),
-        buttons
+        // 右侧的文件拖拽
+        current
       ],
     );
 
     current = SizedBox(
-      width: 220,
+      height: height,
       child: Container(
         child: current,
       ),
@@ -159,7 +165,7 @@ class _JSONFormatFixView extends StatefulWidget {
 class _JSONFormatFixState extends State<_JSONFormatFixView> {
   OverlayEntry? overlay;
 
-  void showTip(BuildContext context, PointerHoverEvent event) {
+  void showTip(BuildContext context, PointerHoverEvent? event) {
     Widget entry = const Text(
       '自动修复指输入的JSON格式不正确时，工具将根据正确的JSON格式自动为其补其确实内容。如“”、{}、:等',
       style: TextStyle(fontSize: 14, color: Colors.black),
@@ -181,8 +187,8 @@ class _JSONFormatFixState extends State<_JSONFormatFixView> {
 
     entry = Positioned(
       child: entry,
-      right: 20,
-      top: 160,
+      left: 20,
+      top: 130,
     );
 
     OverlayEntry overlay = OverlayEntry(
@@ -237,7 +243,7 @@ class _JSONFormatFixState extends State<_JSONFormatFixView> {
         if (needChangeState) {
           if (value) {
             // 鼠标在tip上，显示提示
-            showTip(context, PointerHoverEvent());
+            showTip(context, null);
           } else {
             overlay?.remove();
           }

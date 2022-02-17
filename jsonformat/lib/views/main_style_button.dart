@@ -20,7 +20,7 @@ class MainStyleButton extends StatelessWidget {
     ButtonStyle? style;
 
     style = ButtonStyle(
-
+      backgroundColor: MaterialStateProperty.all(disabled ? Colors.black12 : Colors.blueGrey)
     );
 
     return ElevatedButton(

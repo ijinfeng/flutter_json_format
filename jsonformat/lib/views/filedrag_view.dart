@@ -149,7 +149,7 @@ class _FileDargViewState extends State<FileDargView> {
 
     current = Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: [fileDectorIcon, current],
+      children: [fileDectorIcon, const SizedBox(width: 20,), current],
     );
 
     Widget fileName = Text(JSONManager().file?.name ?? '当前没有文件');

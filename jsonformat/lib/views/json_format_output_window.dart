@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
-class BottomOutputSide extends StatelessWidget {
+class JSONOutputWindow extends StatelessWidget {
+const JSONOutputWindow({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
      Widget current = const TextField(
@@ -10,7 +12,7 @@ class BottomOutputSide extends StatelessWidget {
       );
 
     current = Container(
-      padding: const EdgeInsets.only(left: 16, bottom: 16,right: 16),
+      padding: const EdgeInsets.only(left: 8, bottom: 0,right: 16),
       child: current,
     );
 

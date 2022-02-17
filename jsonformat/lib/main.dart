@@ -29,6 +29,15 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+
+    Widget jsonTextView = Row(
+              children: const [
+                JsonInputWindow(),
+                JSONOutputWindow(),
+              ],
+            );
+  jsonTextView = Expanded(child: jsonTextView);
+
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
@@ -40,14 +49,12 @@ class MyApp extends StatelessWidget {
           children: [
             _WindowTopBox(),
             Padding(
-              child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [TopLeftJsonInputSide(), TopRightToolBarSide()],
-            ),
-            padding: const EdgeInsets.only(top: 16),
+              padding: const EdgeInsets.only(top: 16),
+              child: MainToolBarSide(),
             ),
             Divider(color: _mainColor,),
-            BottomOutputSide(),
+            jsonTextView,
+            const SizedBox(height: 8,),
             BottomOutputLogToolBarView()
           ],
         ), 
