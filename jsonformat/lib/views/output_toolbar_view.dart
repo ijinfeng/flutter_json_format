@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'main_style_button.dart';
+import 'package:jsonformat/models/log_message.dart';
 
 class BottomOutputLogToolBarView extends StatelessWidget {
   @override
@@ -8,14 +9,14 @@ class BottomOutputLogToolBarView extends StatelessWidget {
     Widget current;
 
 //日志输出
-    Widget log = const Text(
-      '日志输出',
-      style: TextStyle(color: Colors.white, fontSize: 16),
-    );
+    Widget log = const LogMessageWidget('日志输出');
+
     log = Padding(
-      padding: const EdgeInsets.only(left: 16, right: 16),
+      padding: const EdgeInsets.only(left: 16, right: 0),
       child: log,
     );
+
+    log = Flexible(child: log);
 
 // 按钮模块
     TextStyle textStyle = const TextStyle(

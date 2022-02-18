@@ -2,9 +2,11 @@
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:jsonformat/models/json_manager.dart';
 
 import 'package:jsonformat/views/filedrag_view.dart';
 import 'main_style_button.dart';
+import 'package:jsonformat/models/log_message.dart';
 
 enum FormatLanguage { dart, objectiveC, swift }
 
@@ -57,7 +59,17 @@ class MainToolBarSide extends StatelessWidget {
     );
 
     Widget dectorJSONButton = MainStyleButton(
-        onPressed: () {},
+        onPressed: () {
+          bool hasJSON = JSONManager().hasInputJSON;
+          if (hasJSON) {
+             bool isJSON = JSONManager().isJSON;
+             if (isJSON) {
+              LogManager().writeMessage('JSON格式正确');   
+             }
+          } else {
+            LogManager().writeMessage('没有任何JSON输入');
+          }
+        },
         child: Text(
           'JSON探测',
           style: textStyle,
