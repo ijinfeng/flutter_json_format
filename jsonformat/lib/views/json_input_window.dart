@@ -11,7 +11,7 @@ class JsonInputWindow extends StatelessWidget {
     var controller = TextEditingController();
     controller.addListener(() {
       JSONManager().inputJSON = controller.text;
-      print("======>\n${controller.text}");
+      // print("======>\n${controller.text}");
     });
 
 // json 输入框

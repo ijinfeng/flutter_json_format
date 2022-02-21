@@ -8,7 +8,12 @@
  */
 
 import 'dart:convert';
+import 'dart:ffi';
+
+import 'package:flutter/material.dart';
+
 import 'string_extension_json.dart';
+import 'json_symbol.dart';
 
 /*
 JSON数据类型
@@ -32,15 +37,28 @@ class FormatJSONOutputSerializer {
   }
   */
   String? format(String? json) {
-    if (json == null) return json;
+    if (json.isJSON == false) return null;
 
-    return json;
-  }
+    print("========> Start format JSON:\n");
 
-/// 富文本格式化输出
-  String? richFormat(String? json) {
-    if (json == null) return json;
+    // 1. 看下最外层是[]还是{}
+    var _json = json!;
+    // var first = _json.first!;
+    // print("first== ${first}");
+    var data = jsonDecode(_json);
+    if (data is Map) {
+print("+++++map");
+    } else if (data is Array) {
+print("+++++array");
+    } else if (data is String) {
+print("+++++string");
+    } else if (data is num) {
+print("+++++num");
+    } else {
+print("+++++null");
+    }
 
-    return null;
+    return _json;
   }
 }
+

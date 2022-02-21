@@ -21,4 +21,10 @@ extension JSONHelper on String? {
     }
     return true;
   }
+
+  String? get first {
+    if (this == null) return null;
+    if (this!.isEmpty) return "";
+    return this![0];
+  }
 }

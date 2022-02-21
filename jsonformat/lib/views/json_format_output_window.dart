@@ -9,13 +9,14 @@
 import 'package:flutter/material.dart';
 
 import 'package:jsonformat/models/output_manager.dart';
+import 'rich_textediting_controller.dart';
 
 class JSONOutputWindow extends StatelessWidget {
   const JSONOutputWindow({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    var controller = TextEditingController();
+    var controller = RichTextEditingController();
 
     OutputManager().addListener(() {
       controller.text = OutputManager().readOutput ?? "";
@@ -23,6 +24,7 @@ class JSONOutputWindow extends StatelessWidget {
 
     Widget current = TextField(
       controller: controller,
+      readOnly: true,
       keyboardType: TextInputType.multiline,
       maxLines: 999,
       decoration: const InputDecoration(
