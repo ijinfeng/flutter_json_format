@@ -79,7 +79,8 @@ class MainToolBarSide extends StatelessWidget {
 // 格式化
     Widget formatButton = MainStyleButton(
         onPressed: () {
-          JSONManager().format();
+          bool formatSuccess = JSONManager().format();
+          formatSuccess ? LogManager().writeMessage("格式化成功") : LogManager().write(const LogMessage("格式化失败", level: LogLevel.error));
         },
         child: Text(
           '格式化',

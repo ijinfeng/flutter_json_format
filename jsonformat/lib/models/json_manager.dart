@@ -49,11 +49,11 @@ class JSONManager {
   bool autoFixJSON = false;
 
 /// 格式化
-  void format() {
+  bool format() {
     String? format_json;
 
     if (!autoFixJSON) {
-      if (!isJSON) return;
+      if (!isJSON) return false;
       format_json = _outputSerializer.format(inputJSON);
     } else {
       format_json = _outputSerializer.format(_fixJSON(inputJSON));
@@ -61,6 +61,7 @@ class JSONManager {
     
     // 将格式化之后的数据传递给输出窗口
     OutputManager().write(format_json);
+    return true;
   }
 }
 
