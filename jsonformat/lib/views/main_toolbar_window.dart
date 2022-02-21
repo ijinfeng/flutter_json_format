@@ -56,6 +56,7 @@ class MainToolBarSide extends StatelessWidget {
       height: 10,
     );
 
+// 检测是否为JSON格式
     Widget dectorJSONButton = MainStyleButton(
         onPressed: () {
           bool hasJSON = JSONManager().hasInputJSON;
@@ -222,6 +223,7 @@ class _JSONFormatFixState extends State<_JSONFormatFixView> {
         onChanged: (value) {
           setState(() {
             widget.autoFix = !widget.autoFix;
+            JSONManager().autoFixJSON = widget.autoFix;
           });
         });
 
