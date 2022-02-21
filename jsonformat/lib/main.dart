@@ -10,7 +10,7 @@ import 'package:jsonformat/views/output_toolbar_view.dart';
 
 void main() {
   runApp(const MyApp());
-//
+
   doWhenWindowReady(() {
     const initialSize = Size(600, 500);
     appWindow.minSize = initialSize;

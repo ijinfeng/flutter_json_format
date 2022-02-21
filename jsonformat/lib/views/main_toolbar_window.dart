@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:jsonformat/models/json_manager.dart';
@@ -45,8 +43,8 @@ class MainToolBarSide extends StatelessWidget {
 // 分割线
     Widget seperateLine = Container(
       color: Colors.black26,
-  width: 1,
-  height: height - 10,
+      width: 1,
+      height: height - 10,
     );
 
     TextStyle textStyle = const TextStyle(
@@ -62,10 +60,12 @@ class MainToolBarSide extends StatelessWidget {
         onPressed: () {
           bool hasJSON = JSONManager().hasInputJSON;
           if (hasJSON) {
-             bool isJSON = JSONManager().isJSON;
-             if (isJSON) {
-              LogManager().writeMessage('JSON格式正确');   
-             }
+            bool isJSON = JSONManager().isJSON;
+            if (isJSON) {
+              LogManager().writeMessage('JSON格式正确');
+            } else {
+              LogManager().write(const LogMessage('JSON格式不正确', level: LogLevel.error));
+            }
           } else {
             LogManager().writeMessage('没有任何JSON输入');
           }
@@ -77,7 +77,9 @@ class MainToolBarSide extends StatelessWidget {
 
 // 格式化
     Widget formatButton = MainStyleButton(
-        onPressed: () {},
+        onPressed: () {
+          JSONManager().format();
+        },
         child: Text(
           '格式化',
           style: textStyle,
@@ -179,7 +181,7 @@ class _JSONFormatFixState extends State<_JSONFormatFixView> {
 
   void showTip(BuildContext context, PointerHoverEvent? event) {
     Widget entry = const Text(
-      '自动修复指输入的JSON格式不正确时，工具将根据正确的JSON格式自动为其补其确实内容。如“”、{}、:等',
+      '自动修正指输入的JSON格式不正确时，工具将根据正确的JSON格式自动补全。如“”、{}、:等，或移除多余字符。',
       style: TextStyle(fontSize: 14, color: Colors.black),
     );
 
@@ -318,5 +320,3 @@ class _DropDownMenuState extends State<_DropDownMenu> {
     return dropDownMenu;
   }
 }
-
-

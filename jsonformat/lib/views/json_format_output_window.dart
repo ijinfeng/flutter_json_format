@@ -1,25 +1,41 @@
+/*
+ * @Author: your name
+ * @Date: 2022-02-18 22:28:06
+ * @LastEditTime: 2022-02-20 11:14:48
+ * @LastEditors: Please set LastEditors
+ * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ * @FilePath: /jsonformat/lib/views/json_format_output_window.dart
+ */
 import 'package:flutter/material.dart';
 
+import 'package:jsonformat/models/output_manager.dart';
+
 class JSONOutputWindow extends StatelessWidget {
-const JSONOutputWindow({Key? key}) : super(key: key);
+  const JSONOutputWindow({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-     Widget current = const TextField(
-        keyboardType: TextInputType.multiline,
-        maxLines: 999,
-        decoration: InputDecoration(border: OutlineInputBorder(), contentPadding: EdgeInsets.all(10)),
-      );
+    var controller = TextEditingController();
+
+    OutputManager().addListener(() {
+      controller.text = OutputManager().readOutput ?? "";
+    });
+
+    Widget current = TextField(
+      controller: controller,
+      keyboardType: TextInputType.multiline,
+      maxLines: 999,
+      decoration: const InputDecoration(
+          border: OutlineInputBorder(), contentPadding: EdgeInsets.all(10)),
+    );
 
     current = Container(
-      padding: const EdgeInsets.only(left: 8, bottom: 0,right: 16),
+      padding: const EdgeInsets.only(left: 8, bottom: 0, right: 16),
       child: current,
     );
 
-  current = Expanded(child: current);
+    current = Expanded(child: current);
 
     return current;
-    
   }
-  
 }
