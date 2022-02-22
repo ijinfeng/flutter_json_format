@@ -7,6 +7,7 @@ class OutputManager with ChangeNotifier {
   factory OutputManager() => _manager;
 
   String? _outputText;
+  String? inputJSON;
 
   void write(String? output) {
     _outputText = output;

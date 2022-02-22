@@ -50,17 +50,21 @@ class JSONManager {
 
 /// 格式化
   bool format() {
-    String? format_json;
+    if (inputJSON == null) return false;
 
+    String? _formatJson;
+    String? _inputJson;
     if (!autoFixJSON) {
       if (!isJSON) return false;
-      format_json = _outputSerializer.format(inputJSON);
+      _inputJson = inputJSON;
     } else {
-      format_json = _outputSerializer.format(_fixJSON(inputJSON));
+      _inputJson = _fixJSON(inputJSON);
     }
+    _formatJson = _outputSerializer.format(_inputJson);
     
     // 将格式化之后的数据传递给输出窗口
-    OutputManager().write(format_json);
+    OutputManager().inputJSON = _inputJson;
+    OutputManager().write(_formatJson);
     return true;
   }
 }

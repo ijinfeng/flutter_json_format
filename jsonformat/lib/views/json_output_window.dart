@@ -19,7 +19,12 @@ class JSONOutputWindow extends StatelessWidget {
     var controller = RichTextEditingController();
 
     OutputManager().addListener(() {
-      controller.text = OutputManager().readOutput ?? "";
+      if (controller.highlight) {
+        // controller.text = OutputManager().inputJSON ?? "";
+        controller.text = OutputManager().readOutput ?? "";
+      } else {
+        controller.text = OutputManager().readOutput ?? "";
+      }
     });
 
     Widget current = TextField(

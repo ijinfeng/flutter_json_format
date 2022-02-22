@@ -5,7 +5,7 @@ import 'package:bitsdojo_window/bitsdojo_window.dart';
 
 import 'package:jsonformat/views/json_input_window.dart';
 import 'package:jsonformat/views/main_toolbar_window.dart';
-import 'package:jsonformat/views/json_format_output_window.dart';
+import 'package:jsonformat/views/json_output_window.dart';
 import 'package:jsonformat/views/output_toolbar_view.dart';
 
 void main() {
