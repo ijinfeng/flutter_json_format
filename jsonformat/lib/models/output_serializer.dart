@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2022-02-20 10:36:45
- * @LastEditTime: 2022-02-21 23:17:02
+ * @LastEditTime: 2022-02-22 22:20:21
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: /jsonformat/lib/models/output_serial.dart
@@ -108,32 +108,40 @@ class FormatJSONOutputSerializer {
       {TextSpan box = const TextSpan(),
       String space = '',
       JSONOutputStyle style = const JSONOutputStyle()}) {
+        TextStyle spaceStyle = TextStyle(
+          fontSize: style.fontSize,
+          fontWeight: style.fontWeight,
+          height: style.height
+        );
     if (data is Map) {
       box += TextSpan(
           text: "{",
           style: TextStyle(
               color: style.braceColor,
               fontSize: style.fontSize,
-              fontWeight: style.fontWeight));
+              fontWeight: style.fontWeight,
+              height: style.height));
       String endSpace = space;
       space += lineHeadSpace;
       var keys = data.keys.toList();
       for (int i = 0; i < data.length; i++) {
         box = box.appendString('\n');
         var key = keys[i];
-        TextSpan append = TextSpan(text: space) +
+        TextSpan append = TextSpan(text: space, style: spaceStyle) +
             TextSpan(
                 text: "\"$key\"",
                 style: TextStyle(
                     color: style.keyColor,
                     fontSize: style.fontSize,
-                    fontWeight: style.fontWeight)) +
+                    fontWeight: style.fontWeight,
+                    height: style.height)) +
             TextSpan(
                 text: ": ",
                 style: TextStyle(
                     color: style.colonColor,
                     fontSize: style.fontSize,
-                    fontWeight: style.fontWeight)) +
+                    fontWeight: style.fontWeight,
+                    height: style.height)) +
             _formatRichData(data[key], space: space);
         if (i == data.length - 1) {
           box += append;
@@ -144,7 +152,8 @@ class FormatJSONOutputSerializer {
                   style: TextStyle(
                       color: style.commaColor,
                       fontSize: style.fontSize,
-                      fontWeight: style.fontWeight));
+                      fontWeight: style.fontWeight,
+                      height: style.height));
         }
       }
       box = box.appendString('\n');
@@ -153,30 +162,33 @@ class FormatJSONOutputSerializer {
           style: TextStyle(
               color: style.braceColor,
               fontSize: style.fontSize,
-              fontWeight: style.fontWeight));
+              fontWeight: style.fontWeight,
+              height: style.height));
     } else if (data is List) {
       box += TextSpan(
           text: "[",
           style: TextStyle(
               color: style.squareBracketsColor,
               fontSize: style.fontSize,
-              fontWeight: style.fontWeight));
+              fontWeight: style.fontWeight,
+              height: style.height));
       String endSpace = space;
       space += lineHeadSpace;
       for (int i = 0; i < data.length; i++) {
         box = box.appendString('\n');
         var e = data[i];
         if (i == data.length - 1) {
-          box += TextSpan(text: space) + _formatRichData(e, space: space);
+          box += TextSpan(text: space, style: spaceStyle) + _formatRichData(e, space: space);
         } else {
-          box += TextSpan(text: space) +
+          box += TextSpan(text: space, style: spaceStyle) +
               _formatRichData(e, space: space) +
               TextSpan(
                   text: ",",
                   style: TextStyle(
                       color: style.commaColor,
                       fontSize: style.fontSize,
-                      fontWeight: style.fontWeight));
+                      fontWeight: style.fontWeight,
+                      height: style.height));
         }
       }
       box = box.appendString('\n');
@@ -185,28 +197,32 @@ class FormatJSONOutputSerializer {
           style: TextStyle(
               color: style.squareBracketsColor,
               fontSize: style.fontSize,
-              fontWeight: style.fontWeight));
+              fontWeight: style.fontWeight,
+              height: style.height));
     } else if (data is String) {
       box += TextSpan(
           text: "\"$data\"",
           style: TextStyle(
               color: style.stringColor,
               fontSize: style.fontSize,
-              fontWeight: style.fontWeight));
+              fontWeight: style.fontWeight,
+              height: style.height));
     } else if (data is num) {
       box += TextSpan(
           text: "$data",
           style: TextStyle(
               color: style.numColor,
               fontSize: style.fontSize,
-              fontWeight: style.fontWeight));
+              fontWeight: style.fontWeight,
+              height: style.height));
     } else if (data is bool) {
       box += TextSpan(
           text: "$data",
           style: TextStyle(
               color: style.boolColor,
               fontSize: style.fontSize,
-              fontWeight: style.fontWeight));
+              fontWeight: style.fontWeight,
+              height: style.height));
     } else {
       box.appendString('null');
     }
@@ -226,13 +242,17 @@ class JSONOutputStyle {
       this.numColor = Colors.blue,
       this.fontSize = 18,
       this.fontWeight = FontWeight.w400,
-      this.quotationColor = Colors.black});
+      this.quotationColor = Colors.black,
+      this.height = 1.2});
 
   /// 字体大小
   final double fontSize;
 
   /// 字体粗细
   final FontWeight fontWeight;
+
+  /// 行高
+  final double height;
 
   /// 引号颜色
   final Color quotationColor;
@@ -261,4 +281,3 @@ class JSONOutputStyle {
   /// 数值的颜色
   final Color numColor;
 }
-

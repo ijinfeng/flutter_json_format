@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
 
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:cross_file/cross_file.dart';
@@ -6,6 +7,7 @@ import 'package:file_picker/file_picker.dart';
 
 import 'package:jsonformat/models/json_file.dart';
 import 'package:jsonformat/models/json_manager.dart';
+import 'package:jsonformat/models/log_message.dart';
 import 'main_style_button.dart';
 
 /// 文件拖拽区域。拖拽窗口+文件操作的三个按钮
@@ -19,11 +21,35 @@ class FileDargView extends StatefulWidget {
 }
 
 class _FileDargViewState extends State<FileDargView> {
+  Future<String?> readFile(JSONFile? jsonFile) async {
+    if (jsonFile == null) return null;
+    try {
+      File file = File(jsonFile.path);
+      return await file.readAsString();
+    } catch (error) {
+      if (error.toString().isEmpty) {
+        LogManager().write(const LogMessage('文件解析错误', level: LogLevel.error));
+      } else {
+        LogManager().write(LogMessage(error.toString(), level: LogLevel.error));
+      }
+      return null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     Widget current;
 
     bool existFile = JSONManager().file != null;
+    // 存在文件时，读取文件内容
+    if (existFile) {
+      readFile(JSONManager().file).then((value) {
+        print("读取文件内容--->\n$value");
+        JSONManager().inputJSON = value;
+        // 文件读取完毕，需要刷新内容
+        JSONManager().reloadData();
+      });
+    }
 
     TextStyle textStyle = const TextStyle(
       color: Colors.white,
@@ -41,9 +67,7 @@ class _FileDargViewState extends State<FileDargView> {
             if (value != null && value.count > 0) {
               JSONFile file = JSONFile.pickFile(value.files.first);
               JSONManager().setFile(file);
-              setState(() {
-                
-              });
+              setState(() {});
             }
           });
         },
@@ -54,25 +78,27 @@ class _FileDargViewState extends State<FileDargView> {
 
 // 重新读取文件内容
     Widget resetButton = MainStyleButton(
-        onPressed: () {},
-        child: Text(
-          '重新读取',
-          style: textStyle,
-        ), 
-        disabled: !existFile,);
+      onPressed: () {},
+      child: Text(
+        '重新读取',
+        style: textStyle,
+      ),
+      disabled: !existFile,
+    );
 
     // 删除
     Widget deleteButton = MainStyleButton(
-        onPressed: () {
-          setState(() {
-            JSONManager().deleteFile();
-          });
-        },
-        child: Text(
-          '删除文件',
-          style: textStyle,
-        ),
-        disabled: !existFile,);
+      onPressed: () {
+        setState(() {
+          JSONManager().deleteFile();
+        });
+      },
+      child: Text(
+        '删除文件',
+        style: textStyle,
+      ),
+      disabled: !existFile,
+    );
 
     List<Widget> buttons = [
       selectFileButton,
@@ -149,7 +175,13 @@ class _FileDargViewState extends State<FileDargView> {
 
     current = Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: [fileDectorIcon, const SizedBox(width: 20,), current],
+      children: [
+        fileDectorIcon,
+        const SizedBox(
+          width: 20,
+        ),
+        current
+      ],
     );
 
     Widget fileName = Text(JSONManager().file?.name ?? '当前没有文件');

@@ -7,6 +7,7 @@
  * @FilePath: /jsonformat/lib/models/json_manager.dart
  */
 import 'dart:convert';
+import 'package:flutter/material.dart';
 
 import 'package:jsonformat/models/json_file.dart';
 import 'output_serializer.dart';
@@ -17,7 +18,7 @@ import 'output_manager.dart';
 // https://dart.cn/guides/libraries/library-tour#dartconvert---decoding-and-encoding-json-utf-8-and-more
 
 /// json管理类（单利）
-class JSONManager {
+class JSONManager with ChangeNotifier {
   JSONManager._instance();
   static final JSONManager _manager = JSONManager._instance();
   factory JSONManager() => _manager;
@@ -26,12 +27,16 @@ class JSONManager {
 
   // json文件操作
   JSONFile? _file;
+  /// 设置新文件
   void setFile(JSONFile? file) => _file = file;
   JSONFile? get file => _file;
   void deleteFile() => _file = null;
 
   /// 输入框中的json
   String? inputJSON;
+
+  /// 更新数据源
+  void reloadData() => notifyListeners();
 
   /// 是否有输入json
   bool get hasInputJSON {

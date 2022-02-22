@@ -1,3 +1,11 @@
+/*
+ * @Author: your name
+ * @Date: 2022-02-21 22:11:31
+ * @LastEditTime: 2022-02-22 22:51:32
+ * @LastEditors: Please set LastEditors
+ * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ * @FilePath: /flutter_json_format/jsonformat/lib/views/json_input_window.dart
+ */
 import 'package:flutter/material.dart';
 
 import 'package:jsonformat/models/json_manager.dart';
@@ -11,7 +19,11 @@ class JsonInputWindow extends StatelessWidget {
     var controller = TextEditingController();
     controller.addListener(() {
       JSONManager().inputJSON = controller.text;
-      // print("======>\n${controller.text}");
+    });
+    JSONManager().addListener(() {
+      if (JSONManager().inputJSON != null) {
+        controller.text = JSONManager().inputJSON!;
+      }
     });
 
 // json 输入框
@@ -19,7 +31,7 @@ class JsonInputWindow extends StatelessWidget {
       controller: controller,
       keyboardType: TextInputType.multiline,
       maxLines: 999,
-      decoration: InputDecoration(
+      decoration: const InputDecoration(
           border: OutlineInputBorder(), contentPadding: EdgeInsets.all(10)),
     );
 
