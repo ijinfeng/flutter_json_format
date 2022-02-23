@@ -44,7 +44,7 @@ class _FileDargViewState extends State<FileDargView> {
     // 存在文件时，读取文件内容
     if (existFile) {
       readFile(JSONManager().file).then((value) {
-        print("读取文件内容--->\n$value");
+        // print("读取文件内容--->\n$value");
         JSONManager().inputJSON = value;
         // 文件读取完毕，需要刷新内容
         JSONManager().reloadData();
@@ -78,7 +78,16 @@ class _FileDargViewState extends State<FileDargView> {
 
 // 重新读取文件内容
     Widget resetButton = MainStyleButton(
-      onPressed: () {},
+      onPressed: () {
+        if (JSONManager().file != null) {
+          readFile(JSONManager().file).then((value) {
+            JSONManager().inputJSON = value;
+            // 文件读取完毕，需要刷新内容
+            JSONManager().reloadData();
+            LogManager().writeMessage('重新读取数据');
+          });
+        }
+      },
       child: Text(
         '重新读取',
         style: textStyle,
@@ -153,8 +162,7 @@ class _FileDargViewState extends State<FileDargView> {
         if (files.isEmpty) return;
         // 读取第一个文件
         XFile file = files.first;
-        print(
-            "file >>>> \npath: ${file.path}\nmimeType: ${file.mimeType}\nname: ${file.name}\nlength: ${file.length()}");
+        // print("file >>>> \npath: ${file.path}\nmimeType: ${file.mimeType}\nname: ${file.name}\nlength: ${file.length()}");
 
         JSONFile json = JSONFile.xfile(file);
         JSONManager().setFile(json);
