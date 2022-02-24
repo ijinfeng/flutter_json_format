@@ -9,6 +9,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:jsonformat/models/json_manager.dart';
+import 'package:jsonformat/models/model_convert.dart';
+import 'package:jsonformat/models/output_model.dart';
 import 'dart:io';
 
 import 'package:path_provider/path_provider.dart';
@@ -41,9 +43,18 @@ class BottomOutputLogToolBarView extends StatelessWidget {
     );
     Widget copyButton = MainStyleButton(
         onPressed: () {
-          String? formatJSON = OutputManager().readOutput;
-          if (formatJSON == null) return;
-          Clipboard.setData(ClipboardData(text: formatJSON));
+          if (OutputManager().isEmpty) return;
+          List<String?> texts = OutputManager().readOutput;
+          String copyText = '';
+          bool added = false;
+          for (var text in texts) {
+            if (added) copyText += '\n';
+            if (text != null) {
+              copyText += text;
+              added = true;
+            }
+          }
+          Clipboard.setData(ClipboardData(text: copyText));
           LogManager().writeMessage('复制成功');
         },
         child: Text(
@@ -52,7 +63,7 @@ class BottomOutputLogToolBarView extends StatelessWidget {
         ));
     Widget exportButton = MainStyleButton(
         onPressed: () async {
-          if (OutputManager().readOutput == null) {
+          if (OutputManager().isEmpty) {
             LogManager()
                 .write(const LogMessage('当前没有输出', level: LogLevel.warn));
             return;
@@ -60,20 +71,11 @@ class BottomOutputLogToolBarView extends StatelessWidget {
           Directory? downloadDir = await getDownloadsDirectory();
           if (downloadDir != null) {
             String createDirPath = downloadDir.path;
-            print("path= ${createDirPath}");
-            File file = File(createDirPath + '/my_format_json.json');
-            try {
-              bool exists = await file.exists();
-              if (!exists) {
-                print("文件不存在，开始创建文件");
-                file = await file.create();
-              }
-              file.writeAsString(OutputManager().readOutput!);
-              LogManager().write(LogMessage("文件已写入 $createDirPath"));
-            } catch (error) {
-              print("创建文件失败: ${error.toString()}");
-              LogManager()
-                  .write(LogMessage(error.toString(), level: LogLevel.error));
+            // print("path= ${createDirPath}");
+            if (OutputManager().isJSONText) {
+              writeJson(createDirPath, OutputManager().readOutput.first ?? '');
+            } else {
+              writeModel(createDirPath, OutputManager().readModel);
             }
           }
         },
@@ -114,5 +116,65 @@ class BottomOutputLogToolBarView extends StatelessWidget {
       child: current,
     );
     return current;
+  }
+
+  void writeJson(String saveDirPath, String json) async {
+    File file = File(saveDirPath + '/my_format_json.json');
+    try {
+      bool exists = await file.exists();
+      if (!exists) {
+        // print("文件不存在，开始创建文件");
+        file = await file.create();
+      }
+      file.writeAsString(json);
+      LogManager().write(LogMessage("文件已写入 $saveDirPath"));
+    } catch (error) {
+      print("创建文件失败: ${error.toString()}");
+      LogManager().write(LogMessage(error.toString(), level: LogLevel.error));
+    }
+  }
+
+  void writeModel(String saveDirPath, OutputModel? model) async {
+    if (model == null) return;
+    try {
+      if (model.la == FormatLanguage.dart) {
+        File file = File(saveDirPath + '/my_model.dart');
+        bool exists = await file.exists();
+        if (!exists) {
+          file = await file.create();
+        }
+        file.writeAsString(model.impl);
+        LogManager().write(LogMessage("文件已写入 $saveDirPath"));
+      } else if (model.la == FormatLanguage.objectiveC) {
+        // 写入头文件
+        File headerFile = File(saveDirPath + '/my_model.h');
+        bool headerExists = await headerFile.exists();
+        if (!headerExists) {
+          headerFile = await headerFile.create();
+        }
+        headerFile.writeAsString(model.header ?? '');
+        LogManager().write(LogMessage("文件已写入 $saveDirPath"));
+
+        // 写入实现文件
+        File implFile = File(saveDirPath + '/my_model.m');
+        bool implExists = await implFile.exists();
+        if (!implExists) {
+          implFile = await implFile.create();
+        }
+        implFile.writeAsString(model.header ?? '');
+        LogManager().write(LogMessage("文件已写入 $saveDirPath"));
+      } else if (model.la == FormatLanguage.swift) {
+        File file = File(saveDirPath + '/my_model.swift');
+        bool exists = await file.exists();
+        if (!exists) {
+          file = await file.create();
+        }
+        file.writeAsString(model.impl);
+        LogManager().write(LogMessage("文件已写入 $saveDirPath"));
+      }
+    } catch (error) {
+      print("创建文件失败: ${error.toString()}");
+      LogManager().write(LogMessage(error.toString(), level: LogLevel.error));
+    }
   }
 }

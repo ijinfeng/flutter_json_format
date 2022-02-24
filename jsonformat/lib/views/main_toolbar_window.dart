@@ -1,32 +1,19 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:jsonformat/models/json_manager.dart';
 
+import 'package:jsonformat/models/json_manager.dart';
+import 'package:jsonformat/models/output_model.dart';
 import 'package:jsonformat/views/filedrag_view.dart';
 import 'main_style_button.dart';
 import 'package:jsonformat/models/log_message.dart';
-
-enum FormatLanguage { dart, objectiveC, swift }
-
-String languageEnumToString(FormatLanguage la) {
-  String ret = "";
-  switch (la) {
-    case FormatLanguage.dart:
-      ret = "dart";
-      break;
-    case FormatLanguage.objectiveC:
-      ret = "OC";
-      break;
-    case FormatLanguage.swift:
-      ret = "swift";
-      break;
-  }
-  return ret;
-}
+import 'package:jsonformat/models/model_convert.dart';
+import 'package:jsonformat/models/output_manager.dart';
 
 /// 右侧工具菜单栏
 class MainToolBarSide extends StatelessWidget {
   FormatLanguage la = FormatLanguage.dart;
+
+  final ModelConvert _convert = ModelConvert();
 
   /// 自动修复指json格式不正确时，sdk将根据json格式自动为其补偿确实的内容，如“”，{}等
   bool autoFix = false;
@@ -103,6 +90,8 @@ class MainToolBarSide extends StatelessWidget {
         onPressed: () {
           la = menu.la;
           print("当前选择的语言类型为：${languageEnumToString(la)}");
+          OutputModel? model = _convert.convert(la, JSONManager().inputJSON);
+          OutputManager().writeModel(model);
         },
         child: Text(
           "转模型",
