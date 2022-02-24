@@ -11,6 +11,7 @@ class ModelConvert {
     var data = jsonDecode(json!);
 
     OutputModel model = _convertJson(la, data);
+    print(model.toString());
     return model;
   }
 
@@ -58,8 +59,11 @@ String languageEnumToString(FormatLanguage la) {
 }
 
 class _InnerModel {
+  /// 名称，当为对象时，就是类型
   final String name;
+  /// 类型，当类型为非对象模型时，如‘String’，那么属性只有一条为这个String
   _InnerType type = _InnerType.unknow;
+  /// 属性列表
   List<_InnerProperty>? propertys;
 
   _InnerModel(this.name, dynamic data) {
@@ -105,8 +109,9 @@ class _InnerProperty {
   _InnerType type = _InnerType.unknow;
   dynamic value;
   String name;
+  bool optional;
 
-  _InnerProperty(this.name, dynamic value) {
+  _InnerProperty(this.name, dynamic value, {this.optional = true}) {
     if (value is Map) {
       type = _InnerType.object;
     } else if (value is List) {
@@ -121,8 +126,10 @@ class _InnerProperty {
         type = _InnerType.double;
       }
       type = _InnerType.int;
+      optional = false;
     } else if (value is bool) {
       type = _InnerType.bool;
+      optional = false;
     } else {
       // null
       type = _InnerType.unknow;
@@ -135,16 +142,20 @@ class _InnerProperty {
       return _InnerModel('Model$deepth', value);
     } else if (value is List) {
       List arr = value;
-      dynamic first = arr.first;
-      if (first != null) {
+      if (arr.isNotEmpty) {
+        dynamic first = arr.first;
         if (first is Map || first is List) {
-          List arr = [];
+          List values = [];
           for (var item in arr) {
             dynamic itemValue = _parseValue(item, deepth: deepth + 1);
-            arr.add(itemValue);
+            values.add(itemValue);
           }
-          return arr;
+          return values;
+        } else {
+          return value;
         }
+      } else {
+        return value;
       }
     } else {
       return value;
@@ -172,9 +183,114 @@ class _DartReader extends _Reader {
   String readImpl() {
     String output = '';
     if (_model.type == _InnerType.object) {
-      // TODO: parse
+        output = _parseModel(_model);
     } 
     return output;
+  }
+
+  String _parseModel(_InnerModel model) {
+    String output = '';
+    const String wrap = '\n';
+    output += 'class ${model.name} {';
+    // 嵌套的模型
+    List<_InnerModel> nestModels = [];
+    if (model.propertys != null) {
+      for (var property in model.propertys!) {
+        if (property.value is _InnerModel) {
+          nestModels.add(property.value);
+        }
+        output += wrap;
+        String writePro = _parseProperty(property);
+        output += writePro;
+      }
+    }
+    output += wrap;
+    output += '}';
+    if (nestModels.isNotEmpty) {
+      for (var model in nestModels) {
+        output += wrap;
+        output += _parseModel(model);
+      }
+    }
+    return output;
+  }
+
+/*
+class TestModel {
+  bool isTip = false;
+
+  TestModel();
+
+  void fromJson(String json) {}
+  String toJson() => '';
+}
+*/ 
+  String _parseProperty(_InnerProperty property) {
+      String output = '';
+      const String space = '\t';
+      switch (property.type) {
+        case _InnerType.bool: {
+          output += space;
+          if (property.optional) {
+            output += 'bool? ${property.name};';
+          } else {
+            output += 'bool ${property.name} = false;';
+          }
+        }
+        break;
+        case _InnerType.int: {
+          output += space;
+          if (property.optional) {
+            output += 'int? ${property.name};'; 
+          } else {
+            output += 'int ${property.name} = 0;'; 
+          }
+        }
+        break;
+        case _InnerType.double: {
+          output += space;
+          if (property.optional) {
+            output += 'double? ${property.name};'; 
+          } else {
+            output += 'double ${property.name} = 0.0;'; 
+          }
+        } break;
+        case _InnerType.string: {
+          output += space;
+          if (property.optional) {
+            output += 'String? ${property.name};'; 
+          } else {
+            output += "String ${property.name} = '';"; 
+          }
+        } break;
+        case _InnerType.list: {
+          output += space;
+          List arr = property.value;
+          String nameT = '';
+          if (arr.isNotEmpty) {
+            String t = arr.first.runtimeType.toString();
+            print("hehe--$t");
+            nameT = '<$t>';
+          }
+          if (property.optional) {
+            output += 'List$nameT? ${property.name};'; 
+          } else {
+            output += 'List$nameT ${property.name} = [];'; 
+          }
+        } break;
+        case _InnerType.object: {
+          output += space;
+          _InnerModel _model = property.value;
+          if (property.optional) {
+            output += '${_model.name}? ${property.name};'; 
+          } else {
+            output += "$_model.name ${property.name} = ${_model.name}();"; 
+          }
+        } break;
+        default:
+        break;
+      }
+      return output;
   }
 }
 

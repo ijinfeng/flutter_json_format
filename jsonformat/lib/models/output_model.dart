@@ -10,4 +10,18 @@ class OutputModel {
   String impl;
 
   OutputModel(this.la, this.impl, {this.header});
+
+  @override
+  String toString() {
+    String output = '============ ${languageEnumToString(la)} =========>\n';
+    if (header != null) {
+      output += 'header =>\n';
+      output += header!;
+    }
+    output += '\n';
+    output += 'impl =>\n';
+    output += impl;
+    output += '\n=====================================';
+    return output;
+  }
 }
