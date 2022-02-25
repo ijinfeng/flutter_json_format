@@ -6,13 +6,15 @@
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: /jsonformat/lib/models/json_manager.dart
  */
-import 'dart:convert';
 import 'package:flutter/material.dart';
 
 import 'package:jsonformat/models/json_file.dart';
+import 'package:jsonformat/models/model_convert.dart';
 import 'output_serializer.dart';
 import 'string_extension_json.dart';
 import 'output_manager.dart';
+import 'package:jsonformat/models/output_manager.dart';
+import 'package:jsonformat/models/output_model.dart';
 
 // dart json转换文档
 // https://dart.cn/guides/libraries/library-tour#dartconvert---decoding-and-encoding-json-utf-8-and-more
@@ -23,10 +25,13 @@ class JSONManager with ChangeNotifier {
   static final JSONManager _manager = JSONManager._instance();
   factory JSONManager() => _manager;
 
-  FormatJSONOutputSerializer _outputSerializer = FormatJSONOutputSerializer();
+  final FormatJSONOutputSerializer _outputSerializer =
+      FormatJSONOutputSerializer();
+  final ModelConvert _convert = ModelConvert();
 
   // json文件操作
   JSONFile? _file;
+
   /// 设置新文件
   void setFile(JSONFile? file) => _file = file;
   JSONFile? get file => _file;
@@ -53,7 +58,7 @@ class JSONManager with ChangeNotifier {
   /// 自动修正JSON
   bool autoFixJSON = false;
 
-/// 格式化
+  /// 格式化
   bool format() {
     if (inputJSON == null) return false;
 
@@ -66,14 +71,28 @@ class JSONManager with ChangeNotifier {
       _inputJson = _fixJSON(inputJSON);
     }
     _formatJson = _outputSerializer.format(_inputJson);
-    
+
     // 将格式化之后的数据传递给输出窗口
     OutputManager().inputJSON = _inputJson;
     OutputManager().write(_formatJson);
     return true;
   }
-}
 
+  FormatLanguage la = FormatLanguage.dart;
+
+  /// 转模型
+  bool convert() {
+    if (JSONManager().hasInputJSON) {
+      OutputModel? model =
+          _convert.convert(JSONManager().la, JSONManager().inputJSON);
+      if (model != null) {
+        OutputManager().writeModel(model);
+        return true;
+      }
+    }
+    return false;
+  }
+}
 
 extension JSONHelper on JSONManager {
   /// 修正输入json格式
@@ -83,7 +102,7 @@ extension JSONHelper on JSONManager {
 
     // TODO: json修正
 
-  // 1、移除特殊字符
+    // 1、移除特殊字符
 
     return json;
   }

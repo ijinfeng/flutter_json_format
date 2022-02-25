@@ -8,12 +8,15 @@
  */
 
 import 'dart:convert';
-import 'dart:ffi';
 
 import 'package:flutter/material.dart';
+import 'package:jsonformat/models/json_manager.dart';
+import 'package:jsonformat/models/output_model.dart';
 
 import 'string_extension_json.dart';
 import 'textspan_extension.dart';
+import 'model_convert.dart';
+import 'inner_model.dart';
 
 /*
 JSON数据类型
@@ -27,6 +30,7 @@ JSON数据类型
 */
 
 class FormatJSONOutputSerializer {
+  final ModelConvert _convert = ModelConvert();
   /*
   input: {"s": "hello", "i": 10}
 
@@ -56,14 +60,63 @@ class FormatJSONOutputSerializer {
     return output;
   }
 
-  static String lineHeadSpace = "    ";
+  TextSpan? formatModelRich(String? json) {
+    if (json.isJSON == false) return null;
 
+    FormatLanguage la = JSONManager().la;
+    JSONOutputStyle style = const JSONOutputStyle();
+    OutputModel? model = _convert.convert(la, json);
+    if (model == null) return null;
+    if (la == FormatLanguage.dart) {
+      return TextSpan(
+          text: model.impl,
+          style: TextStyle(
+              color: Colors.black,
+              fontSize: style.fontSize,
+              fontWeight: style.fontWeight,
+              height: style.height));
+    } else if (la == FormatLanguage.swift) {
+      return TextSpan(
+          text: model.impl,
+          style: TextStyle(
+              color: Colors.black,
+              fontSize: style.fontSize,
+              fontWeight: style.fontWeight,
+              height: style.height));
+    } else if (la == FormatLanguage.objectiveC) {
+      return TextSpan(
+          text: model.header,
+          style: TextStyle(
+              color: Colors.black,
+              fontSize: style.fontSize,
+              fontWeight: style.fontWeight,
+              height: style.height));
+    }
+
+    //  InnerModel? innerModel = _convert.convertInnerModel(JSONManager().la, json);
+    //   if (innerModel == null) return null;
+
+    //   _RichFormater? formater;
+    //   if (la == FormatLanguage.dart) {
+    //     formater = _DartRichFormater(innerModel);
+    //   } else if (la == FormatLanguage.swift) {
+    //     formater = _SwiftRichFormater(innerModel);
+    //   } else if (la == FormatLanguage.objectiveC) {
+    //     formater = _ObjectiveCRichFormater(innerModel);
+    //   }
+    //   return formater?.readTextSpan();
+  }
+}
+
+String _lineHeadSpace = "    ";
+
+extension _FormatRich on FormatJSONOutputSerializer {
   /// json格式化输出
   String _formatData(dynamic data, {String box = '', String space = ''}) {
     if (data is Map) {
       box += "{";
       String endSpace = space;
-      space += lineHeadSpace;
+      space += _lineHeadSpace;
       var keys = data.keys.toList();
       for (int i = 0; i < data.length; i++) {
         box += "\n";
@@ -80,7 +133,7 @@ class FormatJSONOutputSerializer {
     } else if (data is List) {
       box += "[";
       String endSpace = space;
-      space += lineHeadSpace;
+      space += _lineHeadSpace;
       for (int i = 0; i < data.length; i++) {
         box += "\n";
         var e = data[i];
@@ -108,11 +161,10 @@ class FormatJSONOutputSerializer {
       {TextSpan box = const TextSpan(),
       String space = '',
       JSONOutputStyle style = const JSONOutputStyle()}) {
-        TextStyle spaceStyle = TextStyle(
-          fontSize: style.fontSize,
-          fontWeight: style.fontWeight,
-          height: style.height
-        );
+    TextStyle spaceStyle = TextStyle(
+        fontSize: style.fontSize,
+        fontWeight: style.fontWeight,
+        height: style.height);
     if (data is Map) {
       box += TextSpan(
           text: "{",
@@ -122,7 +174,7 @@ class FormatJSONOutputSerializer {
               fontWeight: style.fontWeight,
               height: style.height));
       String endSpace = space;
-      space += lineHeadSpace;
+      space += _lineHeadSpace;
       var keys = data.keys.toList();
       for (int i = 0; i < data.length; i++) {
         box = box.appendString('\n');
@@ -173,12 +225,13 @@ class FormatJSONOutputSerializer {
               fontWeight: style.fontWeight,
               height: style.height));
       String endSpace = space;
-      space += lineHeadSpace;
+      space += _lineHeadSpace;
       for (int i = 0; i < data.length; i++) {
         box = box.appendString('\n');
         var e = data[i];
         if (i == data.length - 1) {
-          box += TextSpan(text: space, style: spaceStyle) + _formatRichData(e, space: space);
+          box += TextSpan(text: space, style: spaceStyle) +
+              _formatRichData(e, space: space);
         } else {
           box += TextSpan(text: space, style: spaceStyle) +
               _formatRichData(e, space: space) +
@@ -224,7 +277,13 @@ class FormatJSONOutputSerializer {
               fontWeight: style.fontWeight,
               height: style.height));
     } else {
-      box.appendString('null');
+      box += TextSpan(
+          text: "null",
+          style: TextStyle(
+              color: style.nullColor,
+              fontSize: style.fontSize,
+              fontWeight: style.fontWeight,
+              height: style.height));
     }
     return box;
   }
@@ -240,6 +299,7 @@ class JSONOutputStyle {
       this.stringColor = Colors.green,
       this.boolColor = Colors.orange,
       this.numColor = Colors.blue,
+      this.nullColor = Colors.brown,
       this.fontSize = 18,
       this.fontWeight = FontWeight.w400,
       this.quotationColor = Colors.black,
@@ -280,4 +340,47 @@ class JSONOutputStyle {
 
   /// 数值的颜色
   final Color numColor;
+
+  /// null的颜色
+  final Color nullColor;
+}
+
+abstract class _RichFormater {
+  final InnerModel _model;
+  final FormatLanguage _la;
+
+  _RichFormater(this._model, this._la);
+
+  TextSpan? readTextSpan();
+}
+
+class _DartRichFormater extends _RichFormater {
+  _DartRichFormater(InnerModel model) : super(model, FormatLanguage.dart);
+
+  @override
+  TextSpan? readTextSpan() {
+    // TODO: implement readTextSpan
+    throw UnimplementedError();
+  }
+}
+
+class _SwiftRichFormater extends _RichFormater {
+  _SwiftRichFormater(InnerModel model) : super(model, FormatLanguage.swift);
+
+  @override
+  TextSpan? readTextSpan() {
+    // TODO: implement readTextSpan
+    throw UnimplementedError();
+  }
+}
+
+class _ObjectiveCRichFormater extends _RichFormater {
+  _ObjectiveCRichFormater(InnerModel model)
+      : super(model, FormatLanguage.objectiveC);
+
+  @override
+  TextSpan? readTextSpan() {
+    // TODO: implement readTextSpan
+    throw UnimplementedError();
+  }
 }
