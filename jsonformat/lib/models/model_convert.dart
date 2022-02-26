@@ -86,6 +86,12 @@ class _DartReader extends _Reader {
   @override
   String? readHeader() => null;
 
+  /// \n
+  static String wrap = '\n';
+
+  /// \t
+  static String space = '\t';
+
   @override
   String readImpl() {
     String output = '';
@@ -97,7 +103,6 @@ class _DartReader extends _Reader {
 
   String _parseModel(InnerModel model) {
     String output = '';
-    const String wrap = '\n';
     output += 'class ${model.name} {';
     // 嵌套的模型
     List<InnerModel> nestModels = [];
@@ -111,30 +116,27 @@ class _DartReader extends _Reader {
         output += writePro;
       }
     }
+    output += wrap * 2;
+    // constructor api
+    output += '${model.name}();';
+    // json api
+    output += wrap * 2;
+    output += _parseFromJsonApi(model);
+    output += wrap * 2;
+    output += _parseToJsonApi(model);
     output += wrap;
     output += '}';
     if (nestModels.isNotEmpty) {
       for (var model in nestModels) {
-        output += wrap;
+        output += wrap * 2;
         output += _parseModel(model);
       }
     }
     return output;
   }
 
-/*
-class TestModel {
-  bool isTip = false;
-
-  TestModel();
-
-  void fromJson(String json) {}
-  String toJson() => '';
-}
-*/
   String _parseProperty(InnerProperty property) {
     String output = '';
-    const String space = '\t';
     switch (property.type) {
       case InnerType.bool:
         {
@@ -191,7 +193,7 @@ class TestModel {
             }
             dynamic inner = first;
             while (inner is List) {
-              t = '<$t>';
+              t = 'List<$t>';
               if (inner.isNotEmpty) {
                 inner = inner.first;
               }
@@ -220,6 +222,124 @@ class TestModel {
       default:
         break;
     }
+    return output;
+  }
+
+  /*
+  class MyTestModel {
+  String? aa;
+  int a = 0;
+  SubModel? sub;
+  List<SubModel>? ss;
+  List<List<SubModel>>? subs;
+
+  MyTestModel();
+
+  void fromJson(Map<String, dynamic>? json) {
+    if (json == null) return;
+
+    aa = json['aa'];
+    a = json['a'] ?? 0;
+    sub = SubModel()..fromJson(json['a']);
+    ss = (json[ss] as List).map((e) => SubModel()..fromJson(e)).toList();
+
+    subs = (json[subs] as List)
+        .map(
+          (e) => (e as List).map((e) => SubModel()..fromJson(e)).toList()
+          ).toList();
+  }
+
+  Map<String, dynamic> toJson() {
+    return {'aa': aa, 'a': a, 'sub': sub?.toJson()};
+  }
+}
+
+class SubModel {
+  void fromJson(Map<String, dynamic>? json) {}
+  Map<String, dynamic> toJson() => {};
+}
+
+  */
+
+  String _parseFromJsonApi(InnerModel model) {
+    String output = 'void fromJson(Map<String, dynamic>? json) {';
+    output += wrap;
+    output += space + 'if (json == null) return;';
+    if (model.propertys != null) {
+      for (var property in model.propertys!) {
+        output += wrap;
+        output += space;
+        if (property.type == InnerType.object) {
+          assert(property.subModel != null);
+          output +=
+              "${property.name} = ${property.subModel?.name}()..fromJson(json['${property.name}']);";
+        } else if (property.type == InnerType.list) {
+          if (property.subModel != null) {
+            List _list = property.value;
+            if (_list.isNotEmpty) {
+              output += "${property.name} = (json['${property.name}'] as List)";
+              output += '.map((e) => ';
+              dynamic first = _list.first;
+              String append = '';
+              while (first is List) {
+                output += '(e as List).map((e) => ';
+                append += ').toList()';
+                first = first.first;
+              }
+              if (first is InnerModel) {
+                output += '${first.name}()..fromJson(e)';
+              }
+              output += append;
+              output += ').toList();';
+            } 
+          } else {
+            output += "${property.name} = json['${property.name}']" + (property.optional ? '' : ' ?? ') + ';';
+          }
+        } else {
+          output += "${property.name} = json['${property.name}']";
+          if (!property.optional) {
+            switch (property.type) {
+              case InnerType.bool:
+                {
+                  output += ' ?? false';
+                }
+                break;
+              case InnerType.int:
+              case InnerType.double:
+                {
+                  output += ' ?? 0';
+                }
+                break;
+              case InnerType.string:
+                {
+                  output += " ?? ''";
+                }
+                break;
+              case InnerType.list:
+                {
+                  output += ' ?? []';
+                }
+                break;
+              default:
+                break;
+            }
+          }
+          output += ';';
+        }
+      }
+    }
+    output += wrap;
+    output += '}';
+    return output;
+  }
+
+  String _parseToJsonApi(InnerModel model) {
+    String output = 'Map<String, dynamic> toJson() {';
+    output += wrap;
+    // TODO:
+    output += 'return {};';
+    output += wrap;
+    output += '}';
     return output;
   }
 }
