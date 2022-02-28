@@ -11,7 +11,6 @@ import 'package:jsonformat/models/json_file.dart';
 
 /// 右侧工具菜单栏
 class MainToolBarSide extends StatelessWidget {
-
   /// 自动修复指json格式不正确时，sdk将根据json格式自动为其补偿确实的内容，如“”，{}等
   bool autoFix = false;
 
@@ -43,38 +42,14 @@ class MainToolBarSide extends StatelessWidget {
 // 检测是否为JSON格式
     Widget dectorJSONButton = MainStyleButton(
         onPressed: () {
-ReplaceClassModel model = ReplaceClassModel();
-model.fromJson({
-    "a": 10,
-    "name": "jack",
-    "dic": {
-        "bb": false,
-        "cc": 0,
-        "dd": ["1", "2", "3"],
-        "ee": {
-            "ty": false,
-            "ll": [],
-            "uu": {"y": "Hello"}
-        }
-    },
-    "address": "地球村",
-    "empty": {},
-    "objects": [
-        {"x": 1,"y": 2},
-        {"x": 2, "y": 3}
-    ],
-    "kong": null,
-    "taowa": [[[{"ni": 0.1, "hao": -0.88}]]]
-});
-print(model);
-          return;
           bool hasJSON = JSONManager().hasInputJSON;
           if (hasJSON) {
             bool isJSON = JSONManager().isJSON;
             if (isJSON) {
               LogManager().writeMessage('JSON格式正确');
             } else {
-              LogManager().write(const LogMessage('JSON格式不正确', level: LogLevel.error));
+              LogManager()
+                  .write(const LogMessage('JSON格式不正确', level: LogLevel.error));
             }
           } else {
             LogManager().writeMessage('没有任何JSON输入');
@@ -89,7 +64,10 @@ print(model);
     Widget formatButton = MainStyleButton(
         onPressed: () {
           bool formatSuccess = JSONManager().format();
-          formatSuccess ? LogManager().writeMessage("格式化成功") : LogManager().write(const LogMessage("格式化失败", level: LogLevel.error));
+          formatSuccess
+              ? LogManager().writeMessage("格式化成功")
+              : LogManager()
+                  .write(const LogMessage("格式化失败", level: LogLevel.error));
         },
         child: Text(
           '格式化',
@@ -110,9 +88,20 @@ print(model);
     _DropDownMenu menu = _DropDownMenu(JSONManager().la);
     Widget convertButton = MainStyleButton(
         onPressed: () {
-          JSONManager().la = menu.la;
-          print("当前选择的语言类型为：${languageEnumToString(JSONManager().la)}");
-          JSONManager().convert();
+          if (JSONManager().canConvertModel == false) {
+            LogManager().write(const LogMessage('不能转成模型，请检查输入是否为空或非Map类型',
+                level: LogLevel.warn));
+          } else {
+            JSONManager().la = menu.la;
+            bool ret = JSONManager().convert();
+            if (ret) {
+              LogManager().writeMessage(
+                  '${languageEnumToString(JSONManager().la)} 转换成功');
+            } else {
+              LogManager()
+                  .write(const LogMessage('转换失败', level: LogLevel.error));
+            }
+          }
         },
         child: Text(
           "转模型",
@@ -314,16 +303,16 @@ class _DropDownMenuState extends State<_DropDownMenu> {
             value: FormatLanguage.dart,
             enabled: widget.la != FormatLanguage.dart,
           ),
-          DropdownMenuItem(
-            child: const Text('ObjectiveC'),
-            value: FormatLanguage.objectiveC,
-            enabled: widget.la != FormatLanguage.objectiveC,
-          ),
-          DropdownMenuItem(
-            child: const Text('Swift'),
-            value: FormatLanguage.swift,
-            enabled: widget.la != FormatLanguage.swift,
-          ),
+          // DropdownMenuItem(
+          //   child: const Text('ObjectiveC'),
+          //   value: FormatLanguage.objectiveC,
+          //   enabled: widget.la != FormatLanguage.objectiveC,
+          // ),
+          // DropdownMenuItem(
+          //   child: const Text('Swift'),
+          //   value: FormatLanguage.swift,
+          //   enabled: widget.la != FormatLanguage.swift,
+          // ),
         ],
         onChanged: (la) {
           setState(() {

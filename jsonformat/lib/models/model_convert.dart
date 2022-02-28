@@ -11,7 +11,7 @@ class ModelConvert {
     var data = jsonDecode(json!);
 
     OutputModel model = _convertOutput(la, data);
-    print(model.toString());
+    // print(model.toString());
     return model;
   }
 
@@ -198,7 +198,6 @@ class _DartReader extends _Reader {
                 inner = inner.first;
               }
             }
-            print("hehe--$t");
             nameT = '<$t>';
           }
           if (property.optional) {

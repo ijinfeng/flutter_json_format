@@ -6,6 +6,8 @@
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: /jsonformat/lib/models/json_manager.dart
  */
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 
 import 'package:jsonformat/models/json_file.dart';
@@ -15,6 +17,7 @@ import 'string_extension_json.dart';
 import 'output_manager.dart';
 import 'package:jsonformat/models/output_manager.dart';
 import 'package:jsonformat/models/output_model.dart';
+import 'json_repair.dart';
 
 // dart json转换文档
 // https://dart.cn/guides/libraries/library-tour#dartconvert---decoding-and-encoding-json-utf-8-and-more
@@ -42,6 +45,8 @@ class JSONManager with ChangeNotifier {
 
   /// 更新数据源
   void reloadData() => notifyListeners();
+
+  final JSONRepair _repair = JSONRepair();
 
   /// 是否有输入json
   bool get hasInputJSON {
@@ -92,18 +97,21 @@ class JSONManager with ChangeNotifier {
     }
     return false;
   }
+
+  /// 是否可以转成模型
+  bool get canConvertModel {
+    if (isJSON) {
+        dynamic json = jsonDecode(inputJSON!);
+        if (json is Map) return true;
+    }
+    return false;
+  }
 }
 
 extension JSONHelper on JSONManager {
   /// 修正输入json格式
   String? _fixJSON(String? json) {
-    bool isJSON = json.isJSON;
-    if (isJSON) return json;
-
-    // TODO: json修正
-
-    // 1、移除特殊字符
-
-    return json;
+    String? fixJson = _repair.repair(json);
+    return fixJson;
   }
 }
