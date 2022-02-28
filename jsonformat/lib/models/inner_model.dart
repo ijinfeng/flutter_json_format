@@ -4,7 +4,7 @@ class InnerModel {
   /// 名称，当为对象时，就是类型
   final String name;
   /// 类型，当类型为非对象模型时，如‘String’，那么属性只有一条为这个String
-  InnerType type = InnerType.unknow;
+  InnerType type = InnerType.nil;
   /// 属性列表
   List<InnerProperty>? propertys;
 
@@ -33,12 +33,15 @@ class InnerModel {
       propertys = [InnerProperty('', data)];
     } else if (data is bool) {
       propertys = [InnerProperty('', data)];
-    } else {}
+    } else {
+      propertys = [InnerProperty('', data)];
+    }
   }
 }
 
 enum InnerType {
-  unknow,
+  /// null
+  nil,
   bool,
   int,
   double,
@@ -48,7 +51,7 @@ enum InnerType {
 }
 
 class InnerProperty {
-  InnerType type = InnerType.unknow;
+  InnerType type = InnerType.nil;
   dynamic value;
   String name;
   bool optional;
@@ -75,7 +78,7 @@ class InnerProperty {
       optional = false;
     } else {
       // null
-      type = InnerType.unknow;
+      type = InnerType.nil;
     }
     this.value = _parseValue(value, suggestClassName: suggestClassName);
 

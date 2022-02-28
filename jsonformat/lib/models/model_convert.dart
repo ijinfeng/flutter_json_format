@@ -219,6 +219,12 @@ class _DartReader extends _Reader {
           }
         }
         break;
+      case InnerType.nil:
+        {
+          output += space;
+          output += "dynamic ${property.name};";
+        }
+        break;
       default:
         break;
     }
@@ -226,7 +232,7 @@ class _DartReader extends _Reader {
   }
 
   /*
-  class MyTestModel {
+ class MyTestModel {
   String? aa;
   int a = 0;
   SubModel? sub;
@@ -242,15 +248,19 @@ class _DartReader extends _Reader {
     a = json['a'] ?? 0;
     sub = SubModel()..fromJson(json['a']);
     ss = (json[ss] as List).map((e) => SubModel()..fromJson(e)).toList();
-
     subs = (json[subs] as List)
-        .map(
-          (e) => (e as List).map((e) => SubModel()..fromJson(e)).toList()
-          ).toList();
+        .map((e) => (e as List).map((e) => SubModel()..fromJson(e)).toList())
+        .toList();
   }
 
   Map<String, dynamic> toJson() {
-    return {'aa': aa, 'a': a, 'sub': sub?.toJson()};
+    return {
+      'aa': aa,
+      'a': a,
+      'sub': sub?.toJson(),
+      'ss': ss?.map((e) => e.toJson()).toList(),
+      'subs': subs?.map((e) => e.map((e) => e.toJson()).toList()).toList()
+    };
   }
 }
 
@@ -258,7 +268,6 @@ class SubModel {
   void fromJson(Map<String, dynamic>? json) {}
   Map<String, dynamic> toJson() => {};
 }
-
   */
 
   String _parseFromJsonApi(InnerModel model) {
@@ -336,8 +345,45 @@ class SubModel {
   String _parseToJsonApi(InnerModel model) {
     String output = 'Map<String, dynamic> toJson() {';
     output += wrap;
-    // TODO:
-    output += 'return {};';
+    output += 'return {';
+    if (model.propertys != null) {
+      for (var property in model.propertys!) {
+        output += wrap;
+        output += space;
+        switch (property.type) {
+          case InnerType.object: {
+            output += "'${property.name}': ${property.name}${property.optional ? '?':''}.toJson(),";
+          } break;
+          case InnerType.list: {
+            if (property.subModel != null) {
+              output += "'${property.name}': ${property.name}${property.optional ? '?':''}.map((e) => ";
+              List arr = property.value;
+              if (arr.isNotEmpty) {
+                dynamic first = arr.first;
+                String append = '';
+                while (first is List) {
+                  first = first.first;
+                  output += 'e.map((e) => ';
+                  append += ').toList()';
+                }
+                if (first is InnerModel) {
+                  output += 'e.toJson()';
+                }
+                output += append;
+              }
+              output += ').toList(),';
+            } else {
+              output += "'${property.name}': ${property.name},";  
+            }
+          } break;
+          default: {
+            output += "'${property.name}': ${property.name},";
+          } break;
+        }
+      }
+      output += wrap;
+    }
+    output += '};';
     output += wrap;
     output += '}';
     return output;
