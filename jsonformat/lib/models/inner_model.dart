@@ -71,7 +71,6 @@ class InnerProperty {
       } else {
         type = InnerType.double;
       }
-      type = InnerType.int;
       optional = false;
     } else if (value is bool) {
       type = InnerType.bool;

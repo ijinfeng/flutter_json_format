@@ -281,7 +281,7 @@ class SubModel {
         if (property.type == InnerType.object) {
           assert(property.subModel != null);
           output +=
-              "${property.name} = ${property.subModel?.name}()..fromJson(json['${property.name}']);";
+              "${property.name} = ${property.subModel?.name}()..fromJson(Map<String, dynamic>.from(json['${property.name}']));";
         } else if (property.type == InnerType.list) {
           if (property.subModel != null) {
             List _list = property.value;
@@ -306,7 +306,7 @@ class SubModel {
           }
         } else {
           output += "${property.name} = json['${property.name}']";
-          if (!property.optional) {
+          if (property.optional) {
             switch (property.type) {
               case InnerType.bool:
                 {

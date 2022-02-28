@@ -7,6 +7,8 @@ import 'main_style_button.dart';
 import 'package:jsonformat/models/log_message.dart';
 import 'package:jsonformat/models/model_convert.dart';
 
+import 'package:jsonformat/models/json_file.dart';
+
 /// 右侧工具菜单栏
 class MainToolBarSide extends StatelessWidget {
 
@@ -41,6 +43,31 @@ class MainToolBarSide extends StatelessWidget {
 // 检测是否为JSON格式
     Widget dectorJSONButton = MainStyleButton(
         onPressed: () {
+ReplaceClassModel model = ReplaceClassModel();
+model.fromJson({
+    "a": 10,
+    "name": "jack",
+    "dic": {
+        "bb": false,
+        "cc": 0,
+        "dd": ["1", "2", "3"],
+        "ee": {
+            "ty": false,
+            "ll": [],
+            "uu": {"y": "Hello"}
+        }
+    },
+    "address": "地球村",
+    "empty": {},
+    "objects": [
+        {"x": 1,"y": 2},
+        {"x": 2, "y": 3}
+    ],
+    "kong": null,
+    "taowa": [[[{"ni": 0.1, "hao": -0.88}]]]
+});
+print(model);
+          return;
           bool hasJSON = JSONManager().hasInputJSON;
           if (hasJSON) {
             bool isJSON = JSONManager().isJSON;
