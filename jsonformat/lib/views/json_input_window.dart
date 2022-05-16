@@ -6,6 +6,8 @@
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: /flutter_json_format/jsonformat/lib/views/json_input_window.dart
  */
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 
 import 'package:jsonformat/models/json_manager.dart';
@@ -18,6 +20,14 @@ class JsonInputWindow extends StatelessWidget {
   Widget build(BuildContext context) {
     var controller = TextEditingController();
     controller.addListener(() {
+      ParagraphBuilder pb = ParagraphBuilder(ParagraphStyle())..addText(controller.text);
+
+  pb.addText(controller.text);
+
+  List lines = pb.build().computeLineMetrics();
+
+
+    print(lines.length);
       JSONManager().inputJSON = controller.text;
     });
     JSONManager().addListener(() {

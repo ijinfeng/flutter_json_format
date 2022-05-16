@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'package:jsonformat/models/json_manager.dart';
 import 'package:jsonformat/views/filedrag_view.dart';
+import 'package:jsonformat/views/property_wrap_item_widget.dart';
 import 'main_style_button.dart';
 import 'package:jsonformat/models/log_message.dart';
 import 'package:jsonformat/models/model_convert.dart';
@@ -18,7 +19,8 @@ class MainToolBarSide extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget current;
 
-    double height = 140;
+    // 工具栏高度
+    double height = 180;
 
 // 文件选择区域
     current = FileDargView();
@@ -118,6 +120,24 @@ class MainToolBarSide extends StatelessWidget {
       ],
     );
 
+    // 可选类型选择
+    Widget optionalWidgets = Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        PropertyWrapItemWidget(JsonProperty.num),
+        PropertyWrapItemWidget(JsonProperty.bool),
+        PropertyWrapItemWidget(JsonProperty.string),
+        PropertyWrapItemWidget(JsonProperty.array),
+        PropertyWrapItemWidget(JsonProperty.map),
+        PropertyWrapItemWidget(JsonProperty.object),
+      ],
+    );
+    optionalWidgets = Container(
+      child: optionalWidgets,
+      padding: const EdgeInsets.only(top: 10),
+    );
+
     Widget buttons = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -127,7 +147,8 @@ class MainToolBarSide extends StatelessWidget {
         ),
         format,
         space,
-        convert
+        convert,
+        optionalWidgets
       ],
     );
 

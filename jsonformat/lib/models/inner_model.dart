@@ -1,21 +1,27 @@
+import 'package:jsonformat/models/json_manager.dart';
+
 const String innerModelClassName = 'ReplaceClassModel';
 
 class InnerModel {
   /// 名称，当为对象时，就是类型
   final String name;
+
   /// 类型，当类型为非对象模型时，如‘String’，那么属性只有一条为这个String
   InnerType type = InnerType.nil;
+
   /// 属性列表
   List<InnerProperty>? propertys;
 
-  InnerModel(this.name, dynamic data, {String suggestClassName = innerModelClassName}) {
+  InnerModel(this.name, dynamic data,
+      {String suggestClassName = innerModelClassName}) {
     if (data is Map) {
       type = InnerType.object;
       List<InnerProperty> propertys = [];
       for (var e in data.entries) {
         String key = e.key;
         dynamic value = e.value;
-        InnerProperty property = InnerProperty(key, value, suggestClassName: suggestClassName + '_$key');
+        InnerProperty property = InnerProperty(key, value,
+            suggestClassName: suggestClassName + '_$key');
         propertys.add(property);
       }
       this.propertys = propertys;
@@ -23,7 +29,8 @@ class InnerModel {
       type = InnerType.list;
       List<InnerProperty> propertys = [];
       for (var e in data) {
-        InnerProperty property = InnerProperty('', e, suggestClassName: suggestClassName);
+        InnerProperty property =
+            InnerProperty('', e, suggestClassName: suggestClassName);
         propertys.add(property);
       }
       this.propertys = propertys;
@@ -57,7 +64,8 @@ class InnerProperty {
   bool optional;
   InnerModel? subModel;
 
-  InnerProperty(this.name, dynamic value, {String suggestClassName = innerModelClassName, this.optional = true}) {
+  InnerProperty(this.name, dynamic value,
+      {String suggestClassName = innerModelClassName, this.optional = true}) {
     if (value is Map) {
       type = InnerType.object;
     } else if (value is List) {
@@ -71,21 +79,42 @@ class InnerProperty {
       } else {
         type = InnerType.double;
       }
-      optional = false;
     } else if (value is bool) {
       type = InnerType.bool;
-      optional = false;
     } else {
       // null
       type = InnerType.nil;
     }
     this.value = _parseValue(value, suggestClassName: suggestClassName);
 
+    // optional suggest
+    switch (type) {
+      case InnerType.bool:
+        optional = JSONManager().boolOptional;
+        break;
+      case InnerType.int:
+        optional = JSONManager().numOptional;
+        break;
+      case InnerType.double:
+        optional = JSONManager().numOptional;
+        break;
+      case InnerType.list:
+        optional = JSONManager().arrayOptional;
+        break;
+      case InnerType.string:
+        optional = JSONManager().stringOptional;
+        break;
+      case InnerType.object:
+        optional = JSONManager().objectOptional;
+        break;
+      default:
+    }
+
     // search sub model is exists
     if (type == InnerType.list) {
       dynamic innerItem = this.value;
       while (innerItem is List && innerItem.isNotEmpty) {
-          innerItem = innerItem.first;
+        innerItem = innerItem.first;
       }
       if (innerItem is InnerModel) {
         subModel = innerItem;
@@ -93,12 +122,14 @@ class InnerProperty {
     } else if (type == InnerType.object) {
       subModel = this.value;
     }
-    print("submodel--- ${subModel?.name}");
+    // print("submodel--- ${subModel?.name}");
   }
 
-  dynamic _parseValue(dynamic value, {String suggestClassName = innerModelClassName}) {
+  dynamic _parseValue(dynamic value,
+      {String suggestClassName = innerModelClassName}) {
     if (value is Map) {
-      return InnerModel(suggestClassName, value, suggestClassName: suggestClassName);
+      return InnerModel(suggestClassName, value,
+          suggestClassName: suggestClassName);
     } else if (value is List) {
       List arr = value;
       if (arr.isNotEmpty) {
@@ -106,7 +137,8 @@ class InnerProperty {
         if (first is Map || first is List) {
           List values = [];
           for (var item in arr) {
-            dynamic itemValue = _parseValue(item, suggestClassName: suggestClassName);
+            dynamic itemValue =
+                _parseValue(item, suggestClassName: suggestClassName);
             values.add(itemValue);
           }
           return values;

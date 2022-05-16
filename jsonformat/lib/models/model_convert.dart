@@ -1,3 +1,5 @@
+import 'package:jsonformat/models/json_manager.dart';
+
 import 'output_model.dart';
 import 'string_extension_json.dart';
 import 'dart:convert';
@@ -73,6 +75,8 @@ String languageEnumToString(FormatLanguage la) {
 abstract class _Reader {
   final InnerModel _model;
   final FormatLanguage _la;
+
+  FormatLanguage get language => _la;
 
   _Reader(this._model, this._la);
 
@@ -151,20 +155,22 @@ class _DartReader extends _Reader {
       case InnerType.int:
         {
           output += space;
+          String _type = JSONManager().allNumUseNumType ? 'num' : 'int';
           if (property.optional) {
-            output += 'int? ${property.name};';
+            output += '$_type? ${property.name};';
           } else {
-            output += 'int ${property.name} = 0;';
+            output += '$_type ${property.name} = 0;';
           }
         }
         break;
       case InnerType.double:
         {
           output += space;
+          String _type = JSONManager().allNumUseNumType ? 'num' : 'double';
           if (property.optional) {
-            output += 'double? ${property.name};';
+            output += '$_type? ${property.name};';
           } else {
-            output += 'double ${property.name} = 0.0;';
+            output += '$_type ${property.name} = 0.0;';
           }
         }
         break;
@@ -214,7 +220,7 @@ class _DartReader extends _Reader {
           if (property.optional) {
             output += '${_model.name}? ${property.name};';
           } else {
-            output += "$_model.name ${property.name} = ${_model.name}();";
+            output += "${_model.name} ${property.name} = ${_model.name}();";
           }
         }
         break;
@@ -285,6 +291,9 @@ class SubModel {
           if (property.subModel != null) {
             List _list = property.value;
             if (_list.isNotEmpty) {
+              output +=
+                  "if (json['${property.name}'] != null && json['${property.name}'] is List) {";
+              output += wrap;
               output += "${property.name} = (json['${property.name}'] as List)";
               output += '.map((e) => ';
               dynamic first = _list.first;
@@ -299,13 +308,34 @@ class SubModel {
               }
               output += append;
               output += ').toList();';
-            } 
+              output += wrap;
+              output += '} else {';
+              output += wrap;
+              output += "${property.name} = [];";
+              output += wrap;
+              output += '}';
+            }
           } else {
-            output += "${property.name} = json['${property.name}']" + (property.optional ? '' : ' ?? ') + ';';
+            // 基本类型的数组
+            // 转换方式有两种
+            // ints = (json['ints'] as List).cast<num>();
+            // ints = (json['ints'] as List).isEmpty ? [] : json['ints'];
+            // output += "${property.name} = json['${property.name}']" + (property.optional ? '' : ' ?? ') + ';';
+            output +=
+                "if (json['${property.name}'] != null && json['${property.name}'] is List) {";
+            output += wrap;
+            output +=
+                "${property.name} = (json['${property.name}'] as List).isEmpty ? [] : json['${property.name}'];";
+            output += wrap;
+            output += '} else {';
+            output += wrap;
+            output += "${property.name} = [];";
+            output += wrap;
+            output += '}';
           }
         } else {
           output += "${property.name} = json['${property.name}']";
-          if (property.optional) {
+          if (!property.optional) {
             switch (property.type) {
               case InnerType.bool:
                 {
@@ -350,34 +380,42 @@ class SubModel {
         output += wrap;
         output += space;
         switch (property.type) {
-          case InnerType.object: {
-            output += "'${property.name}': ${property.name}${property.optional ? '?':''}.toJson(),";
-          } break;
-          case InnerType.list: {
-            if (property.subModel != null) {
-              output += "'${property.name}': ${property.name}${property.optional ? '?':''}.map((e) => ";
-              List arr = property.value;
-              if (arr.isNotEmpty) {
-                dynamic first = arr.first;
-                String append = '';
-                while (first is List) {
-                  first = first.first;
-                  output += 'e.map((e) => ';
-                  append += ').toList()';
-                }
-                if (first is InnerModel) {
-                  output += 'e.toJson()';
-                }
-                output += append;
-              }
-              output += ').toList(),';
-            } else {
-              output += "'${property.name}': ${property.name},";  
+          case InnerType.object:
+            {
+              output +=
+                  "'${property.name}': ${property.name}${property.optional ? '?' : ''}.toJson(),";
             }
-          } break;
-          default: {
-            output += "'${property.name}': ${property.name},";
-          } break;
+            break;
+          case InnerType.list:
+            {
+              if (property.subModel != null) {
+                output +=
+                    "'${property.name}': ${property.name}${property.optional ? '?' : ''}.map((e) => ";
+                List arr = property.value;
+                if (arr.isNotEmpty) {
+                  dynamic first = arr.first;
+                  String append = '';
+                  while (first is List) {
+                    first = first.first;
+                    output += 'e.map((e) => ';
+                    append += ').toList()';
+                  }
+                  if (first is InnerModel) {
+                    output += 'e.toJson()';
+                  }
+                  output += append;
+                }
+                output += ').toList(),';
+              } else {
+                output += "'${property.name}': ${property.name},";
+              }
+            }
+            break;
+          default:
+            {
+              output += "'${property.name}': ${property.name},";
+            }
+            break;
         }
       }
       output += wrap;

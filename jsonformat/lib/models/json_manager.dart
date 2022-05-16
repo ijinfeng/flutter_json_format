@@ -22,6 +22,15 @@ import 'json_repair.dart';
 // dart json转换文档
 // https://dart.cn/guides/libraries/library-tour#dartconvert---decoding-and-encoding-json-utf-8-and-more
 
+enum JsonProperty {
+  num,
+  bool,
+  string,
+  array,
+  map,
+  object,
+}
+
 /// json管理类（单利）
 class JSONManager with ChangeNotifier {
   JSONManager._instance();
@@ -101,11 +110,30 @@ class JSONManager with ChangeNotifier {
   /// 是否可以转成模型
   bool get canConvertModel {
     if (isJSON) {
-        dynamic json = jsonDecode(inputJSON!);
-        if (json is Map) return true;
+      dynamic json = jsonDecode(inputJSON!);
+      if (json is Map) return true;
     }
     return false;
   }
+
+  bool numOptional = true;
+  bool boolOptional = true;
+  bool stringOptional = true;
+  bool arrayOptional = true;
+  bool mapOptional = true;
+  bool objectOptional = true;
+
+  // 是否所有类型可选
+  bool get allOptional =>
+      numOptional &&
+      boolOptional &&
+      stringOptional &&
+      arrayOptional &&
+      mapOptional &&
+      objectOptional;
+
+  // 所有的[int]和[double]都是用[num]类型
+  bool allNumUseNumType = true;
 }
 
 extension JSONHelper on JSONManager {
